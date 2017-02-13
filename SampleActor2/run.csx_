@@ -1,0 +1,15 @@
+﻿#r "Newtonsoft.Json"
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Host;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+public static void Run(Dictionary<string, object> input, TraceWriter log)
+{
+    log.Info("C# Actor2 trigger input " + JObject.FromObject(input));
+}

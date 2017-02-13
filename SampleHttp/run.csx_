@@ -1,0 +1,51 @@
+﻿#r "Microsoft.Azure.WebJobs.Script"
+
+using System;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Diagnostics;
+using ActoresEmu;
+using Microsoft.Azure.WebJobs.Host;
+
+private static bool TryGetQueryStringParameter(HttpRequestMessage req, string name, out string value)
+{
+    value = req.GetQueryNameValuePairs().Where(kvp => string.Equals(kvp.Key, name, StringComparison.OrdinalIgnoreCase))
+                                        .Select(kvp => kvp.Value)
+                                        .FirstOrDefault();
+    return !string.IsNullOrEmpty(value);
+}
+
+public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceWriter log)
+{
+    log.Info(string.Format("C# HTTP trigger function processed a request. Name={0}", req.RequestUri));
+   
+    var host = ActorContext.Default;
+    string actorName;
+    string action;
+    if (!TryGetQueryStringParameter(req, "actorName", out actorName) ||
+        !TryGetQueryStringParameter(req, "action", out action))
+    {
+        return new HttpResponseMessage(HttpStatusCode.BadRequest);
+    }
+
+    string data;
+    TryGetQueryStringParameter(req, "data", out data);
+
+    switch (action.ToLower())
+    {
+        case "join":
+            host.SendMessage("ChatUser", actorName, "join", data);
+            break;
+
+        case "message":
+            host.SendMessage("ChatUser", actorName, "message", data);
+            break;
+
+        default:
+            return new HttpResponseMessage(HttpStatusCode.BadRequest);
+    }
+
+    return await Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
+}

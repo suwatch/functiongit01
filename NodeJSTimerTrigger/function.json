@@ -1,0 +1,12 @@
+{
+  "disabled": true,
+  "bindings": [
+    {
+      "name": "bar",
+      "type": "timerTrigger",
+      "schedule": "0/15 * * * * *",
+      "runOnStartup": false,
+      "direction": "in"
+    }
+  ]
+}
